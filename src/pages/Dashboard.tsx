@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -18,10 +19,9 @@ import PrimaryButton from "../components/PrimaryButton";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-
 interface EmployeeRow {
   id: number;
-  profileImage: string;
+  profileImagePreview?: string;
   fullName: string;
   gender: "Male" | "Female";
   dob: string;
@@ -29,149 +29,122 @@ interface EmployeeRow {
   isActive: boolean;
 }
 
-const rows: EmployeeRow[] = [
-  {
-    id: 1001,
-    profileImage: "https://i.pravatar.cc/150?img=1",
-    fullName: "John Snow",
-    gender: "Male",
-    dob: "1995-06-15",
-    state: "Telangana",
-    isActive: true,
-  },
-  {
-    id: 1002,
-    profileImage: "https://i.pravatar.cc/150?img=2",
-    fullName: "Arya Stark",
-    gender: "Female",
-    dob: "1998-03-12",
-    state: "Karnataka",
-    isActive: false,
-  },
-  {
-    id: 1003,
-    profileImage: "https://i.pravatar.cc/150?img=3",
-    fullName: "Daenerys Targaryen",
-    gender: "Female",
-    dob: "1993-11-25",
-    state: "Tamil Nadu",
-    isActive: true,
-  },
-];
-
-const totalEmployees = rows.length;
-
-const activeEmployees = rows.filter(
-  (emp) => emp.isActive
-).length;
-
-const inactiveEmployees = rows.filter(
-  (emp) => !emp.isActive
-).length;
+const STORAGE_KEY = "employees";
 
 const Dashboard = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [rows, setRows] = useState<EmployeeRow[]>([]);
 
-    const handleEdit = (row: EmployeeRow) => {
-        console.log("Edit employee:", row);
-    };
-
-    const handleDelete = (id: number) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete?");
-        if (confirmDelete) {
-        console.log("Delete employee with ID:", id);
-        }
-    };
-
-    return (
-        <Box>
-            <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                mb={3}
-            >
-                <Typography variant="h4">Dashboard</Typography>
-                <PrimaryButton
-                    label="Add Employee"
-                    onClick={() => navigate("/add-employee")}
-                />
-            </Box>
-
-            <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-            > 
-                <InfoCard
-                title={totalEmployees.toString()}
-                description="Total Employees"
-                />
-                <InfoCard
-                title={activeEmployees.toString()}
-                description="Active Employees"
-                />
-                <InfoCard
-                title={inactiveEmployees.toString()}
-                description="Inactive Employees"
-                />
-            </Box>
-
-            <TableContainer component={Paper}>
-                <Table>
-                <TableHead>
-                    <TableRow>
-                    <TableCell>Employee ID</TableCell>
-                    <TableCell>Profile</TableCell>
-                    <TableCell>Full Name</TableCell>
-                    <TableCell>Gender</TableCell>
-                    <TableCell>DOB</TableCell>
-                    <TableCell>State</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Actions</TableCell>
-                    </TableRow>
-                </TableHead>
-
-                <TableBody>
-                    {rows.map((row) => (
-                    <TableRow key={row.id}>
-                        <TableCell>{row.id}</TableCell>
-
-                        <TableCell>
-                        <Avatar src={row.profileImage} />
-                        </TableCell>
-
-                        <TableCell>{row.fullName}</TableCell>
-                        <TableCell>{row.gender}</TableCell>
-                        <TableCell>{row.dob}</TableCell>
-                        <TableCell>{row.state}</TableCell>
-
-                        <TableCell>
-                        <Switch checked={row.isActive} />
-                        </TableCell>
-
-                        <TableCell>
-                            <IconButton
-                                color="primary"
-                                onClick={() => handleEdit(row)}
-                            >
-                                <EditIcon />
-                            </IconButton>
-
-                            <IconButton
-                                color="error"
-                                onClick={() => handleDelete(row.id)}
-                            >
-                                <DeleteIcon />
-                            </IconButton>
-                        </TableCell>
-                    </TableRow>
-                    ))}
-                </TableBody>
-                </Table>
-            </TableContainer>
-        </Box>
+  /** Load employees */
+  useEffect(() => {
+    const stored = JSON.parse(
+      localStorage.getItem(STORAGE_KEY) || "[]"
     );
+    setRows(stored);
+  }, []);
+
+  /** Delete employee */
+  const handleDelete = (id: number) => {
+    if (!window.confirm("Are you sure you want to delete?")) return;
+
+    const updated = rows.filter((emp) => emp.id !== id);
+    setRows(updated);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  };
+
+  const totalEmployees = rows.length;
+  const activeEmployees = rows.filter((e) => e.isActive).length;
+  const inactiveEmployees = rows.filter((e) => !e.isActive).length;
+
+  return (
+    <Box>
+      {/* Header */}
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+      >
+        <Typography variant="h4">Dashboard</Typography>
+        <PrimaryButton
+          label="Add Employee"
+          onClick={() => navigate("/employee/add")}
+        />
+      </Box>
+
+      {/* Info Cards */}
+      <Box display="flex" gap={2} mb={3}>
+        <InfoCard title={totalEmployees.toString()} description="Total Employees" />
+        <InfoCard title={activeEmployees.toString()} description="Active Employees" />
+        <InfoCard title={inactiveEmployees.toString()} description="Inactive Employees" />
+      </Box>
+
+      {/* Table */}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Employee ID</TableCell>
+              <TableCell>Profile</TableCell>
+              <TableCell>Full Name</TableCell>
+              <TableCell>Gender</TableCell>
+              <TableCell>DOB</TableCell>
+              <TableCell>State</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {rows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={8} align="center">
+                  No employees found
+                </TableCell>
+              </TableRow>
+            )}
+
+            {rows.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.id}</TableCell>
+
+                <TableCell>
+                  <Avatar src={row.profileImagePreview} />
+                </TableCell>
+
+                <TableCell>{row.fullName}</TableCell>
+                <TableCell>{row.gender}</TableCell>
+                <TableCell>{row.dob}</TableCell>
+                <TableCell>{row.state}</TableCell>
+
+                <TableCell>
+                  <Switch
+                    checked={row.isActive}
+                  />
+                </TableCell>
+
+                <TableCell>
+                  <IconButton
+                    color="primary"
+                    onClick={() => navigate(`/employee/edit/${row.id}`)}
+                  >
+                    <EditIcon />
+                  </IconButton>
+
+                  <IconButton
+                    color="error"
+                    onClick={() => handleDelete(row.id)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  );
 };
 
 export default Dashboard;

@@ -10,7 +10,7 @@ import { CssBaseline } from "@mui/material";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import AddEmployee from "./pages/AddEmployee";
+import EmployeePage from "./pages/Employee";
 import Layout from "./Layout";
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
 
-        {/* Protected Layout Routes */}
+        {/* Protected Routes with Layout */}
         <Route
           element={
             <ProtectedRoute>
@@ -34,7 +34,8 @@ function App() {
           }
         >
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/add-employee" element={<AddEmployee />} />
+          <Route path="/employee/add" element={<EmployeePage />} />
+          <Route path="/employee/edit/:id" element={<EmployeePage />} />
         </Route>
 
         {/* Fallback */}
