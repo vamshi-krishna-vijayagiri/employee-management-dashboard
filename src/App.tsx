@@ -5,8 +5,6 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { CssBaseline } from "@mui/material";
-
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -16,8 +14,6 @@ import Layout from "./Layout";
 function App() {
   return (
     <Router>
-      <CssBaseline />
-
       <Routes>
         {/* Default route */}
         <Route path="/" element={<Navigate to="/login" replace />} />

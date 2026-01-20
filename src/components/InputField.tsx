@@ -11,8 +11,8 @@ interface InputFieldProps {
   fullWidth?: boolean;
   variant?: "outlined" | "filled" | "standard";
   error?: boolean;
-  helperText?: string;
   disabled?: boolean;
+  required?: boolean;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -25,8 +25,8 @@ const InputField: React.FC<InputFieldProps> = ({
   fullWidth = true,
   variant = "outlined",
   error = false,
-  helperText,
   disabled = false,
+  required = false
 }) => {
   return (
     <TextField
@@ -39,8 +39,8 @@ const InputField: React.FC<InputFieldProps> = ({
       fullWidth={fullWidth}
       variant={variant}
       error={error}
-      helperText={helperText}
       disabled={disabled}
+      required={required}
     />
   );
 };

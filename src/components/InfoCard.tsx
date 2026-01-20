@@ -8,31 +8,27 @@ import {
 
 interface InfoCardProps {
   title: string;
-  description?: string;
+  count: string;
   maxWidth?: number;
 }
 
 const InfoCard: React.FC<InfoCardProps> = ({
   title,
-  description,
+  count,
   maxWidth = 400,
 }) => {
   return (
     <Card sx={{ maxWidth }}>
       <CardActionArea>
         <CardContent>
-          {description && (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              mb={1}
-            >
-              {description}
-            </Typography>
-          )}
-
-          <Typography gutterBottom variant="h5" component="div">
+          <Typography
+            color="text.secondary"
+            mb={1}
+          >
             {title}
+          </Typography>
+          <Typography gutterBottom variant="h5" component="div">
+            {count}
           </Typography>
         </CardContent>
       </CardActionArea>

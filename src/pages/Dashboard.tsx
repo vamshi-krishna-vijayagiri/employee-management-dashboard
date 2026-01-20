@@ -74,9 +74,9 @@ const Dashboard = () => {
 
       {/* Info Cards */}
       <Box display="flex" gap={2} mb={3}>
-        <InfoCard title={totalEmployees.toString()} description="Total Employees" />
-        <InfoCard title={activeEmployees.toString()} description="Active Employees" />
-        <InfoCard title={inactiveEmployees.toString()} description="Inactive Employees" />
+        <InfoCard count={totalEmployees.toString()} title="Total Employees" />
+        <InfoCard count={activeEmployees.toString()} title="Active Employees" />
+        <InfoCard count={inactiveEmployees.toString()} title="Inactive Employees" />
       </Box>
 
       {/* Table */}

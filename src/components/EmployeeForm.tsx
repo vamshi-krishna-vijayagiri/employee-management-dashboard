@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Box,
+  Paper,
   Button,
   FormControl,
   FormControlLabel,
@@ -13,7 +14,10 @@ import {
   Typography,
 } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material/Select";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
 import InputField from "./InputField";
+import ProfileAvatar from "./ProfileAvatar";
 import { EmployeeFormData } from "../types/employee";
 
 interface EmployeeFormProps {
@@ -37,7 +41,8 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
     profileImagePreview: "",
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [imageError, setImageError] = useState<string>("");
+  const [isImageValid, setIsImageValid] = useState(true);
 
   /** Populate data in Edit mode */
   useEffect(() => {
@@ -46,159 +51,152 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
     }
   }, [initialData]);
 
-  /** Input / Radio / Switch */
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked, type } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name!]: type === "checkbox" ? checked : value,
     }));
   };
 
-  /** Select */
   const handleSelectChange = (e: SelectChangeEvent) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name as string]: value,
     }));
   };
 
-  /** Image Upload */
-  const handleImageChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleImageChange = (file: File | null) => {
+    if (!file) {
+      setFormData((prev) => ({
+        ...prev,
+        profileImage: null,
+        profileImagePreview: "",
+      }));
+      setImageError("Image must be less than 100KB");
+      setIsImageValid(false);
+      return;
+    }
 
-    setFormData((prev) => ({
-      ...prev,
-      profileImage: file,
-      profileImagePreview: URL.createObjectURL(file),
-    }));
+    if (file.size > 100 * 1024) {
+      setImageError("Image must be less than 100KB");
+      setIsImageValid(false);
+      setFormData((prev) => ({
+        ...prev,
+        profileImage: null,
+        profileImagePreview: "",
+      }));
+    } else {
+      const url = URL.createObjectURL(file);
+      setFormData((prev) => ({
+        ...prev,
+        profileImage: file,
+        profileImagePreview: url,
+      }));
+      setImageError("");
+      setIsImageValid(true);
+    }
   };
 
-  /** Validation */
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.fullName) newErrors.fullName = "Full Name is required";
-    if (!formData.gender) newErrors.gender = "Gender is required";
-    if (!formData.dob) newErrors.dob = "Date of Birth is required";
-    if (!formData.state) newErrors.state = "State is required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const isFormComplete =
+    Boolean(formData.fullName) &&
+    Boolean(formData.gender) &&
+    Boolean(formData.dob) &&
+    Boolean(formData.state) &&
+    isImageValid;
 
   const handleSubmit = () => {
-    if (!validate()) return;
+    if (!isFormComplete) return;
     onSubmit(formData);
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap={2} width={400}>
-      <Typography variant="h6">
-        {initialData ? "Edit Employee" : "Add Employee"}
-      </Typography>
-
-      {/* Full Name */}
-      <InputField
-        label="Full Name"
-        name="fullName"
-        value={formData.fullName}
-        onChange={handleInputChange}
-        error={!!errors.fullName}
-        helperText={errors.fullName}
-      />
-
-      {/* Gender */}
-      <FormControl error={!!errors.gender}>
-        <FormLabel>Gender</FormLabel>
-        <RadioGroup
-          row
-          name="gender"
-          value={formData.gender}
-          onChange={handleInputChange}
-        >
-          <FormControlLabel value="Male" control={<Radio />} label="Male" />
-          <FormControlLabel value="Female" control={<Radio />} label="Female" />
-        </RadioGroup>
-        <Typography color="error" variant="caption">
-          {errors.gender}
+    <Paper sx={{ p: 4 }}>
+      <Box display="flex" flexDirection="column" gap={2} width={400}>
+        <Typography variant="h6" align="center">
+          {initialData ? "Edit Employee" : "Add Employee"}
         </Typography>
-      </FormControl>
-
-      {/* DOB */}
-      <InputField
-        label="Date of Birth"
-        name="dob"
-        type="date"
-        value={formData.dob}
-        onChange={handleInputChange}
-        error={!!errors.dob}
-        helperText={errors.dob}
-      />
-
-      {/* State */}
-      <FormControl error={!!errors.state}>
-        <FormLabel>State</FormLabel>
-        <Select
-          name="state"
-          value={formData.state}
-          onChange={handleSelectChange}
-        >
-          {states.map((state) => (
-            <MenuItem key={state} value={state}>
-              {state}
-            </MenuItem>
-          ))}
-        </Select>
-        <Typography color="error" variant="caption">
-          {errors.state}
-        </Typography>
-      </FormControl>
-
-      {/* Image Upload */}
-      <Button variant="outlined" component="label">
-        Upload Profile Image
-        <input
-          type="file"
-          hidden
-          accept="image/*"
-          onChange={handleImageChange}
-        />
-      </Button>
-
-      {formData.profileImagePreview && (
-        <img
-          src={formData.profileImagePreview}
-          alt="Preview"
-          width={100}
-          style={{ borderRadius: 8 }}
-        />
-      )}
-
-      {/* Active / Inactive */}
-      <FormControlLabel
-        control={
-          <Switch
-            checked={formData.isActive}
-            onChange={handleInputChange}
-            name="isActive"
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <ProfileAvatar
+            photoUrl={formData.profileImagePreview || null}
+            onChange={handleImageChange}
           />
-        }
-        label={formData.isActive ? "Active" : "Inactive"}
-      />
-
-      <Button variant="contained" onClick={handleSubmit}>
-        {initialData ? "Update Employee" : "Add Employee"}
-      </Button>
-    </Box>
+          {imageError && (
+            <Typography color="error" variant="caption" mt={1}>
+              {imageError}
+            </Typography>
+          )}
+        </Box>
+        <InputField
+          label="Full Name"
+          name="fullName"
+          required
+          value={formData.fullName}
+          onChange={handleInputChange}
+        />
+        <FormControl required>
+          <FormLabel>Gender</FormLabel>
+          <RadioGroup
+            row
+            name="gender"
+            value={formData.gender}
+            onChange={handleInputChange}
+          >
+            <FormControlLabel value="Male" control={<Radio />} label="Male" />
+            <FormControlLabel value="Female" control={<Radio />} label="Female" />
+          </RadioGroup>
+        </FormControl>
+        <DatePicker
+          label="Date of Birth"
+          value={formData.dob ? dayjs(formData.dob) : null}
+          onChange={(newValue: Dayjs | null) => {
+            setFormData((prev) => ({
+              ...prev,
+              dob: newValue ? newValue.format("YYYY-MM-DD") : "",
+            }));
+          }}
+          slotProps={{
+            textField: {
+              required: true,
+              fullWidth: true,
+            } as any,
+          }}
+        />
+        <FormControl required>
+          <FormLabel>State</FormLabel>
+          <Select
+            name="state"
+            value={formData.state}
+            onChange={handleSelectChange}
+          >
+            {states.map((state) => (
+              <MenuItem key={state} value={state}>
+                {state}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={formData.isActive}
+              onChange={handleInputChange}
+              name="isActive"
+            />
+          }
+          label={formData.isActive ? "Active" : "Inactive"}
+        />
+        <Button
+          variant="contained"
+          fullWidth
+          disabled={!isFormComplete}
+          onClick={handleSubmit}
+        >
+          {initialData ? "Update Employee" : "Add Employee"}
+        </Button>
+      </Box>
+    </Paper>
   );
 };
 

@@ -1,5 +1,6 @@
-import { Box, Button, Typography, Paper, Alert } from "@mui/material";
+import { Box, Typography, Paper, Alert } from "@mui/material";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import InputField from "../components/InputField";
 import PrimaryButton from "../components/PrimaryButton";
 
@@ -9,6 +10,7 @@ const MOCK_USER = {
 };
 
 const Login = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,13 +21,10 @@ const Login = () => {
       return;
     }
 
-    if (
-      username === MOCK_USER.username &&
-      password === MOCK_USER.password
-    ) {
+    if (username === MOCK_USER.username && password === MOCK_USER.password) {
       localStorage.setItem("isAuthenticated", "true");
       setError("");
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
     } else {
       setError("Invalid username or password");
     }
@@ -38,9 +37,14 @@ const Login = () => {
       alignItems="center"
       height="100vh"
     >
-      <Paper sx={{ p: 4, width: 350 }}>
-        <Typography variant="h5" mb={2}>
-          Login
+      <Paper
+        sx={{
+          p: 4,
+          width: 350,
+        }}
+      >
+        <Typography variant="h5" mb={2} textAlign="center">
+          WELCOME
         </Typography>
 
         {error && (
@@ -67,10 +71,10 @@ const Login = () => {
         </Box>
 
         <PrimaryButton
-            label="Login"
-            fullWidth
-            sx={{ mt: 3 }}
-            onClick={handleLogin}
+          label="Login"
+          fullWidth
+          sx={{ mt: 3 }}
+          onClick={handleLogin}
         />
       </Paper>
     </Box>
