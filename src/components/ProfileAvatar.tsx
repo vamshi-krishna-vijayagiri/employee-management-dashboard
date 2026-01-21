@@ -1,4 +1,3 @@
-// src/components/ProfileAvatar.tsx
 import React from "react";
 import { Avatar, Box, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -30,7 +29,6 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
       };
       reader.readAsDataURL(file);
     } else {
-      // No file selected
       setPreview(null);
       onChange?.(null);
     }

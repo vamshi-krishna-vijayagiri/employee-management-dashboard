@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Paper,
-  Button,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -19,6 +18,7 @@ import dayjs, { Dayjs } from "dayjs";
 import InputField from "./InputField";
 import ProfileAvatar from "./ProfileAvatar";
 import { EmployeeFormData } from "../types/employee";
+import PrimaryButton from "./PrimaryButton";
 
 interface EmployeeFormProps {
   initialData?: EmployeeFormData;
@@ -187,14 +187,12 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
           }
           label={formData.isActive ? "Active" : "Inactive"}
         />
-        <Button
-          variant="contained"
+        <PrimaryButton
+          label={initialData ? "Update Employee" : "Add Employee"}
           fullWidth
           disabled={!isFormComplete}
           onClick={handleSubmit}
-        >
-          {initialData ? "Update Employee" : "Add Employee"}
-        </Button>
+        />
       </Box>
     </Paper>
   );

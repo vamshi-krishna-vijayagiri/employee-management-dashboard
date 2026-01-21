@@ -13,6 +13,7 @@ interface InputFieldProps {
   error?: boolean;
   disabled?: boolean;
   required?: boolean;
+  size?: "small" | "medium";
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -26,7 +27,8 @@ const InputField: React.FC<InputFieldProps> = ({
   variant = "outlined",
   error = false,
   disabled = false,
-  required = false
+  required = false,
+  size = "medium",
 }) => {
   return (
     <TextField
@@ -41,6 +43,7 @@ const InputField: React.FC<InputFieldProps> = ({
       error={error}
       disabled={disabled}
       required={required}
+      size={size}
     />
   );
 };

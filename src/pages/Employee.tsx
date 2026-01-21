@@ -2,12 +2,7 @@ import { Box } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import EmployeeForm from "../components/EmployeeForm";
 import { EmployeeFormData } from "../types/employee";
-
-const STORAGE_KEY = "employees";
-
-interface StoredEmployee extends EmployeeFormData {
-  id: number;
-}
+import { getEmployees, saveEmployees, StoredEmployee } from "../utils/employeeStorage";
 
 const EmployeePage = () => {
   const { id } = useParams();
@@ -15,12 +10,8 @@ const EmployeePage = () => {
 
   const isEditMode = Boolean(id);
 
-  // Get employees from localStorage
-  const employees: StoredEmployee[] = JSON.parse(
-    localStorage.getItem(STORAGE_KEY) || "[]"
-  );
+  const employees = getEmployees();
 
-  // Find employee for edit
   const employeeToEdit = isEditMode
     ? employees.find((e) => e.id === Number(id))
     : undefined;
@@ -29,12 +20,10 @@ const EmployeePage = () => {
     let updatedEmployees: StoredEmployee[];
 
     if (isEditMode && employeeToEdit) {
-      // UPDATE
       updatedEmployees = employees.map((emp) =>
         emp.id === employeeToEdit.id ? { ...emp, ...data } : emp
       );
     } else {
-      // ADD
       const newEmployee: StoredEmployee = {
         id: Date.now(),
         ...data,
@@ -42,16 +31,12 @@ const EmployeePage = () => {
       updatedEmployees = [...employees, newEmployee];
     }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEmployees));
+    saveEmployees(updatedEmployees);
     navigate("/dashboard");
   };
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-    >
+    <Box display="flex" justifyContent="center" alignItems="center">
       <EmployeeForm
         initialData={isEditMode ? employeeToEdit : undefined}
         onSubmit={handleSubmit}
