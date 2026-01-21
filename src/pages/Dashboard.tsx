@@ -23,6 +23,7 @@ import PrimaryButton from "../components/PrimaryButton";
 import ConfirmDialog from "../components/ConfirmDialog";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import PrintIcon from "@mui/icons-material/Print";
 import InputField from "../components/InputField";
 
 interface EmployeeRow {
@@ -79,6 +80,21 @@ const Dashboard = () => {
     setSelectedId(null);
   };
 
+  /** Print handler */
+  const handlePrint = () => {
+    const printContent = document.getElementById("print-area");
+    if (!printContent) return;
+
+    const originalContent = document.body.innerHTML;
+    document.body.innerHTML = printContent.innerHTML;
+
+    window.print();
+
+    document.body.innerHTML = originalContent;
+    window.location.reload();
+  };
+
+  /** Filters */
   const filteredRows = rows.filter((row) => {
     const matchesName = row.fullName
       .toLowerCase()
@@ -158,67 +174,73 @@ const Dashboard = () => {
               <MenuItem value="inactive">Inactive</MenuItem>
             </Select>
           </FormControl>
+
+          <IconButton color="primary" onClick={handlePrint}>
+            <PrintIcon />
+          </IconButton>
         </Box>
       </Box>
 
-      {/* Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Profile</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Gender</TableCell>
-              <TableCell>DOB</TableCell>
-              <TableCell>State</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {filteredRows.length === 0 && (
+      <Box id="print-area">
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={8} align="center">
-                  No employees found
-                </TableCell>
+                <TableCell>ID</TableCell>
+                <TableCell>Profile</TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Gender</TableCell>
+                <TableCell>DOB</TableCell>
+                <TableCell>State</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
-            )}
+            </TableHead>
 
-            {filteredRows.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.id}</TableCell>
-                <TableCell>
-                  <Avatar src={row.profileImagePreview} />
-                </TableCell>
-                <TableCell>{row.fullName}</TableCell>
-                <TableCell>{row.gender}</TableCell>
-                <TableCell>{row.dob}</TableCell>
-                <TableCell>{row.state}</TableCell>
-                <TableCell>
-                  <Switch checked={row.isActive} />
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    color="primary"
-                    onClick={() => navigate(`/employee/edit/${row.id}`)}
-                  >
-                    <EditIcon />
-                  </IconButton>
+            <TableBody>
+              {filteredRows.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={8} align="center">
+                    No employees found
+                  </TableCell>
+                </TableRow>
+              )}
 
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDeleteClick(row.id)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              {filteredRows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell>{row.id}</TableCell>
+                  <TableCell>
+                    <Avatar src={row.profileImagePreview} />
+                  </TableCell>
+                  <TableCell>{row.fullName}</TableCell>
+                  <TableCell>{row.gender}</TableCell>
+                  <TableCell>{row.dob}</TableCell>
+                  <TableCell>{row.state}</TableCell>
+                  <TableCell>
+                    <Switch checked={row.isActive} />
+                  </TableCell>
+                  <TableCell>
+                    <IconButton
+                      color="primary"
+                      onClick={() =>
+                        navigate(`/employee/edit/${row.id}`)
+                      }
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDeleteClick(row.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
 
       {/* Confirm Dialog */}
       <ConfirmDialog
